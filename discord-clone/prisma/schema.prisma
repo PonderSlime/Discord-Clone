@@ -1,4 +1,7 @@
-// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider  = "postgresql"
   url  	    = env("DATABASE_URL")
@@ -8,13 +11,14 @@ datasource db {
 
 model Profile {
   id String @id @default(uuid())
-  userID String @unique
+  userId String @unique
   name String
   imageUrl String @db.Text
   email String @db.Text
 
   servers Server[]
   members Member[]
+  channels Channel[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -30,6 +34,7 @@ model Server {
   profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
   members Member[]
+  channels Channel[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -72,5 +77,14 @@ model Channel {
   type ChannelType @default(TEXT)
 
   profileId String
-  
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  serverId String
+  server Server @relation(fields: [serverId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([serverId])
+  @@index([profileId])
 }
